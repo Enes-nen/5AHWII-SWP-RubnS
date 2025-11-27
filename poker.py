@@ -6,49 +6,67 @@ import random
 
 
 # --- Deck aufbauen ---
-suits = ['♠', '♥', '♦', '♣']          # vier Farben
-ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']  # 13 Werte
+suits = ['♠', '♥', '♦', '♣']
+ranks = ('2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A')
 
 deck = [rank + suit for suit in suits for rank in ranks]
 
 
+# --- Kombinationen als Dictionary ---
+hand_names = {
+    0: "High Card",
+    1: "One Pair",
+    2: "Two Pair",
+    3: "Three of a Kind",
+    4: "Straight",
+    5: "Flush",
+    6: "Full House",
+    7: "Four of a Kind",
+    8: "Straight Flush"
+}
+
+# --- Theoretische Wahrscheinlichkeiten ---
+theoretical_probs = {
+    "High Card": 50.1177,
+    "One Pair": 42.2569,
+    "Two Pair": 4.7539,
+    "Three of a Kind": 2.1128,
+    "Straight": 0.3925,
+    "Flush": 0.1965,
+    "Full House": 0.1441,
+    "Four of a Kind": 0.0240,
+    "Straight Flush": 0.00139
+}
+
+
 # --- Eine Hand ziehen ---
 def draw_hand():
-    """Zieht zufällig 5 verschiedene Karten."""
     return random.sample(deck, 5)
 
 
 # --- Zähle wie oft jeder Wert vorkommt ---
 def count_ranks(hand):
-    """Erstellt ein Dictionary mit der Anzahl jedes Kartenwerts."""
     counts = {}
     for card in hand:
-        rank = card[:-1]  # alles außer letztes Zeichen (die Farbe)
-        if rank in counts:
-            counts[rank] = counts[rank] + 1
-        else:
-            counts[rank] = 1
+        rank = card[:-1]
+        counts[rank] = counts[rank] + 1 if rank in counts else 1
     return counts
 
 
 # --- Kombination erkennen ---
 def evaluate_hand(hand):
-    """Erkennt einfache Pokerkombinationen."""
     rank_counts = count_ranks(hand)
     values = list(rank_counts.values())
 
-    # Farben prüfen
     suits_in_hand = []
     for card in hand:
         suits_in_hand.append(card[-1])
     is_flush = len(set(suits_in_hand)) == 1
 
-    # Ränge in Zahlen für Straße
     rank_values = []
-    rank_order = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
     for card in hand:
         rank = card[:-1]
-        rank_values.append(rank_order.index(rank))
+        rank_values.append(ranks.index(rank))
     rank_values.sort()
 
     is_straight = True
@@ -57,49 +75,54 @@ def evaluate_hand(hand):
             is_straight = False
             break
 
-    # Kombination bestimmen (einfacher Aufbau)
     if is_straight and is_flush:
-        return "Straight Flush"
+        return hand_names[8]
     elif 4 in values:
-        return "Four of a Kind"
+        return hand_names[7]
     elif 3 in values and 2 in values:
-        return "Full House"
+        return hand_names[6]
     elif is_flush:
-        return "Flush"
+        return hand_names[5]
     elif is_straight:
-        return "Straight"
+        return hand_names[4]
     elif 3 in values:
-        return "Three of a Kind"
+        return hand_names[3]
     elif values.count(2) == 2:
-        return "Two Pair"
+        return hand_names[2]
     elif 2 in values:
-        return "One Pair"
+        return hand_names[1]
     else:
-        return "High Card"
+        return hand_names[0]
 
 
 # --- Simulation ---
 def simulate(games):
-    """Simuliert mehrere Pokerhände und zählt die Kombinationen."""
-    results = {}  # Dictionary für Ergebnisse
+    results = {}
     for i in range(games):
         hand = draw_hand()
         combo = evaluate_hand(hand)
-        if combo in results:
-            results[combo] = results[combo] + 1
-        else:
-            results[combo] = 1
+        results[combo] = results[combo] + 1 if combo in results else 1
     return results
 
 
-# --- Ausgabe als Tabelle ---
+# --- Ausgabe mit Vergleich ---
 def print_results(results, total):
     print("Poker Simulation über", total, "Spiele")
-    print("------------------------------------")
+    print("------------------------------------------------------------")
+    print("Kombination | Sim (%) | Theorie (%) | Differenz (%)")
+    print("------------------------------------------------------------")
+
     for combo in results:
-        percent = results[combo] / total * 100
-        print(combo, ":", results[combo], "(", round(percent, 4), "% )")
-    print("------------------------------------")
+        simulated = (results[combo] / total) * 100
+        theoretical = theoretical_probs[combo]
+        difference = simulated - theoretical
+
+        print(combo, "|",
+              round(simulated, 4), "% |",
+              theoretical, "% |",
+              round(difference, 4), "%")
+
+    print("------------------------------------------------------------")
 
 
 def main():
@@ -109,4 +132,3 @@ def main():
 
 
 main()
-
