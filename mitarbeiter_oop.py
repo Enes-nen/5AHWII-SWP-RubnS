@@ -73,7 +73,7 @@ class Firma:
     def anzahl_abteilungsleiter(self):
         count = 0
         for abteilung in self._abteilungen:
-            if abteilung.get_leiter() is not None:
+            if abteilung.get_leiter() != None:
                 count += 1
         return count
 
