@@ -92,7 +92,6 @@ class EinfachVerketteteListe:
         return current_val
 
 
-# --- Main Block ---
 if __name__ == "__main__":
     # 1. Test: Ganzahlen Beispiel
     print("Test 1:")
@@ -112,7 +111,7 @@ if __name__ == "__main__":
     print("ist '1' enthalten?", liste.find("3"))
     print("ist 'neu' enthalten?", liste.find("neu"))
 
-    # 2. Test: Zufallszahlen, Länge und Iterator-Protokoll)
+    # 2. Test: Zufallszahlen, Länge und Iterator-Protokoll
     print("\nTest 2:")
     zufalls_liste = EinfachVerketteteListe()
 
